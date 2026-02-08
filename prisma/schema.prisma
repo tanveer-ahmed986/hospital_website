@@ -1,0 +1,467 @@
+// Prisma Schema for Multi-Hospital Website Platform
+// Database: PostgreSQL 15+
+// Generated: 2026-02-03
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// MULTI-HOSPITAL CONFIGURATION
+// ============================================================================
+
+/// Hospital or clinic entity for multi-tenant support
+model Hospital {
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  domain           String?   @unique // Custom domain (e.g., "abchospital.com")
+  logo             String?
+  tagline          String?
+  description      String?   @db.Text
+  brandColors      Json?     // Primary, secondary, accent colors
+  contactEmail     String
+  contactPhone     String
+  emergencyPhone   String?
+  address          String?   @db.Text
+  city             String?
+  state            String?
+  country          String    @default("Pakistan")
+  postalCode       String?
+  latitude         Decimal?  @db.Decimal(10, 8)
+  longitude        Decimal?  @db.Decimal(11, 8)
+  established      Int?      // Year established
+  licenseNumber    String?
+  accreditations   String[]  @default([])
+  active           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relationships
+  doctors          Doctor[]
+  departments      Department[]
+  facilities       Facility[]
+  testimonials     Testimonial[]
+  certifications   Certification[]
+  branches         Branch[]
+  jobPostings      JobPosting[]
+
+  @@index([slug])
+  @@index([domain])
+}
+
+// ============================================================================
+// CORE ENTITIES
+// ============================================================================
+
+/// Medical professional working at the hospital
+model Doctor {
+  id                String            @id @default(cuid())
+  name              String
+  slug              String            @unique
+  designation       String            // e.g., "Senior Consultant", "Chief Surgeon"
+  qualifications    String            // e.g., "MBBS, MD, FRCS"
+  experience        Int               // Years of experience
+  photo             String?           // Photo URL/path
+  consultationFee   Decimal?          @db.Decimal(10, 2)
+  languages         String[]          @default([])
+  bio               String?           @db.Text
+  active            Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Multi-hospital support
+  hospitalId        String
+  hospital          Hospital          @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  // Relationships
+  specialties       DoctorSpecialty[]
+  departments       DoctorDepartment[]
+  opdSchedule       OPDSchedule[]
+  appointments      Appointment[]
+
+  @@index([slug])
+  @@index([active])
+  @@index([hospitalId])
+}
+
+/// Medical specialty categories (ENT, Cardiology, Pediatrics, etc.)
+model MedicalSpecialty {
+  id               String            @id @default(cuid())
+  name             String            @unique // e.g., "ENT", "Cardiology"
+  slug             String            @unique
+  description      String?           @db.Text
+  commonConditions String[]          @default([])
+  icon             String?           // Icon URL/path
+  displayOrder     Int               @default(0)
+  active           Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relationships
+  doctors          DoctorSpecialty[]
+
+  @@index([slug])
+  @@index([displayOrder])
+}
+
+/// Join table linking doctors to specialties (many-to-many)
+model DoctorSpecialty {
+  doctorId    String
+  specialtyId String
+  isPrimary   Boolean @default(false) // Flag for primary specialty
+
+  doctor   Doctor           @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  specialty MedicalSpecialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+
+  @@id([doctorId, specialtyId])
+  @@index([specialtyId])
+}
+
+/// Hospital departments or divisions
+model Department {
+  id           String             @id @default(cuid())
+  name         String
+  slug         String             @unique
+  description  String?            @db.Text
+  icon         String?
+  image        String?
+  displayOrder Int                @default(0)
+  active       Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Multi-hospital support
+  hospitalId   String
+  hospital     Hospital           @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  // Relationships
+  doctors   DoctorDepartment[]
+  services  Service[]
+
+  @@unique([hospitalId, slug])
+  @@index([slug])
+  @@index([hospitalId])
+}
+
+/// Join table linking doctors to departments
+model DoctorDepartment {
+  doctorId     String
+  departmentId String
+
+  doctor     Doctor     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([doctorId, departmentId])
+}
+
+/// Doctor availability schedule for OPD consultations
+model OPDSchedule {
+  id           String  @id @default(cuid())
+  doctorId     String
+  dayOfWeek    Int     // 0=Sunday, 1=Monday, ... 6=Saturday
+  startTime    String  // HH:MM format (e.g., "09:00")
+  endTime      String  // HH:MM format (e.g., "12:00")
+  slotDuration Int     @default(15) // Minutes per slot
+  active       Boolean @default(true)
+
+  // Relationships
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, dayOfWeek])
+}
+
+/// Patient appointment bookings (NO PHI stored)
+/// Contact info (name, phone, email) is NOT PHI until appointment confirmed
+model Appointment {
+  id                String   @id @default(cuid())
+  patientName       String
+  patientPhone      String
+  patientEmail      String
+  reasonForVisit    String?
+  appointmentDate   DateTime
+  appointmentTime   String   // HH:MM format
+  status            String   @default("pending") // pending, confirmed, cancelled, completed
+  smsSent           Boolean  @default(false)
+  emailSent         Boolean  @default(false)
+  hmsAppointmentId  String?  @unique // HMS system appointment ID (if integrated)
+  notes             String?  @db.Text // Internal notes (staff only)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId, appointmentDate])
+  @@index([status])
+  @@index([patientEmail])
+}
+
+// ============================================================================
+// SERVICE CATEGORIES & SERVICES
+// ============================================================================
+
+/// Hospital service categories (Laboratory, Pharmacy, Radiology, etc.)
+model ServiceCategory {
+  id           String    @id @default(cuid())
+  name         String    @unique // e.g., "Laboratory Services", "Pharmacy"
+  slug         String    @unique
+  description  String?   @db.Text
+  icon         String?
+  metadata     Json?     // Flexible category-specific data
+  displayOrder Int       @default(0)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relationships
+  services Service[]
+
+  @@index([slug])
+}
+
+/// Individual services offered by the hospital
+model Service {
+  id                String  @id @default(cuid())
+  name              String
+  slug              String  @unique
+  description       String? @db.Text
+  benefits          String[] @default([])
+  procedureOverview String? @db.Text
+  image             String?
+  active            Boolean @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  categoryId   String
+  category     ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  departmentId String?
+  department   Department?     @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@index([slug])
+  @@index([categoryId])
+}
+
+// ============================================================================
+// CONTENT MANAGEMENT
+// ============================================================================
+
+/// Health articles and hospital news/updates
+model BlogPost {
+  id             String    @id @default(cuid())
+  title          String
+  slug           String    @unique
+  content        String    @db.Text // HTML/Markdown
+  excerpt        String?
+  featuredImage  String?
+  author         String
+  category       String?
+  tags           String[]  @default([])
+  publishedAt    DateTime?
+  active         Boolean   @default(true)
+  viewCount      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([publishedAt])
+  @@index([category])
+}
+
+/// Contact form submissions from website visitors
+model ContactInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String   @db.Text
+  status    String   @default("new") // new, in_progress, resolved
+  response  String?  @db.Text // Staff response
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([email])
+}
+
+/// Images displayed in homepage hero carousel
+model HeroCarouselImage {
+  id           String   @id @default(cuid())
+  imageUrl     String
+  altText      String
+  caption      String?
+  imageType    String   // staff, facility, equipment, care
+  displayOrder Int
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([active])
+}
+
+// ============================================================================
+// HOSPITAL FACILITIES & INFRASTRUCTURE
+// ============================================================================
+
+/// Hospital branches/locations for multi-branch support
+model Branch {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String
+  address        String   @db.Text
+  city           String
+  state          String?
+  postalCode     String?
+  phone          String
+  email          String?
+  latitude       Decimal? @db.Decimal(10, 8)
+  longitude      Decimal? @db.Decimal(11, 8)
+  operatingHours String?  @db.Text // JSON or text describing hours
+  isMainBranch   Boolean  @default(false)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Multi-hospital support
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, slug])
+  @@index([hospitalId])
+}
+
+/// Hospital facilities and equipment (ICU, Operation Theaters, MRI, etc.)
+model Facility {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String
+  category     String   // equipment, ward, diagnostic, emergency, amenity
+  description  String?  @db.Text
+  image        String?
+  features     String[] @default([])
+  capacity     Int?     // For wards/beds
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Multi-hospital support
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, slug])
+  @@index([hospitalId])
+  @@index([category])
+}
+
+/// Patient testimonials and reviews
+model Testimonial {
+  id           String   @id @default(cuid())
+  patientName  String
+  patientPhoto String?
+  condition    String?  // What they were treated for
+  testimonial  String   @db.Text
+  rating       Int?     @db.SmallInt // 1-5 stars
+  treatment    String?
+  featured     Boolean  @default(false)
+  active       Boolean  @default(true)
+  publishedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Multi-hospital support
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId])
+  @@index([featured])
+}
+
+/// Hospital certifications, accreditations, and partner organizations
+model Certification {
+  id           String   @id @default(cuid())
+  name         String
+  issuer       String   // Who issued the certification
+  type         String   // certification, accreditation, award, partnership
+  logo         String?
+  description  String?  @db.Text
+  issuedDate   DateTime?
+  expiryDate   DateTime?
+  verifyUrl    String?  // URL to verify certification
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Multi-hospital support
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId])
+  @@index([type])
+}
+
+// ============================================================================
+// CAREERS & RECRUITMENT
+// ============================================================================
+
+/// Job openings and career opportunities
+model JobPosting {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String
+  department       String
+  location         String
+  employmentType   String   // full-time, part-time, contract, internship
+  experience       String   // 0-2 years, 2-5 years, etc.
+  qualifications   String[] @default([])
+  responsibilities String   @db.Text
+  requirements     String   @db.Text
+  benefits         String?  @db.Text
+  salaryRange      String?  // Optional, can be "Competitive" or range
+  applicationEmail String
+  openings         Int      @default(1)
+  active           Boolean  @default(true)
+  publishedAt      DateTime?
+  closingDate      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Multi-hospital support
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, slug])
+  @@index([hospitalId])
+  @@index([active])
+  @@index([publishedAt])
+}
+
+// ============================================================================
+// HELP & SUPPORT
+// ============================================================================
+
+/// Frequently Asked Questions
+model FAQ {
+  id           String   @id @default(cuid())
+  question     String
+  answer       String   @db.Text
+  category     String   // appointments, billing, general, services, etc.
+  displayOrder Int      @default(0)
+  active       Boolean  @default(true)
+  viewCount    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([displayOrder])
+}

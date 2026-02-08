@@ -1,0 +1,115 @@
+# ABC General Hospital Configuration
+
+hospital:
+  id: "abc-general"
+  name: "ABC General Hospital"
+  tagline: "Your Health, Our Priority"
+  logo: "/images/hospital_logo.png"
+  favicon: "/assets/abc-general/favicon.ico"
+  domain: "abchospital.com"
+
+branding:
+  colors:
+    primary: "#0066CC"    # Medical blue
+    secondary: "#00A859"  # Medical green
+    accent: "#FF6B35"     # Accent orange
+  fonts:
+    heading: "Montserrat"
+    body: "Open Sans"
+
+contact:
+  phone: "+1-555-ABC-HOSP"
+  emergency: "+1-555-911-HELP"
+  email: "info@abchospital.com"
+  address:
+    street: "123 Healthcare Avenue"
+    city: "Medical City"
+    state: "CA"
+    zip: "90001"
+    country: "USA"
+
+features:
+  appointmentBooking: true
+  patientPortal: false
+  onlinePayments: false
+  telemedicine: false
+  multiLanguage: true
+  blog: true
+  careers: true
+
+languages:
+  default: "en"
+  supported: ["en", "ur"]
+
+specialties:
+  enabled:
+    - "ent"
+    - "cardiology"
+    - "pediatrics"
+    - "gynecology"
+    - "gastroenterology"
+    - "orthopedics"
+    - "neurology"
+    - "dermatology"
+    - "ophthalmology"
+    - "urology"
+    - "psychiatry"
+    - "general-medicine"
+    - "general-surgery"
+
+serviceCategories:
+  laboratory:
+    enabled: true
+    collectionTiming: "Mon-Sat 7:00 AM - 11:00 AM"
+    reportDelivery: "24-48 hours"
+    homeCollection: true
+  pharmacy:
+    enabled: true
+    hours: "24/7"
+    homeDelivery: true
+  radiology:
+    enabled: true
+    services: ["x-ray", "ct-scan", "mri", "ultrasound", "mammography"]
+  emergency:
+    enabled: true
+    availability: "24/7"
+  icu:
+    enabled: true
+    types: ["MICU", "CCU", "NICU", "PICU"]
+
+integrations:
+  hms:
+    enabled: false
+    apiUrl: ""
+  sms:
+    provider: "twilio"
+    from: "+15550001234"
+  email:
+    provider: "sendgrid"
+    from: "noreply@abchospital.com"
+  maps:
+    latitude: 34.0522
+    longitude: -118.2437
+  analytics:
+    googleAnalyticsId: "G-ABCDEFGHIJ"
+  recaptcha: {}
+
+heroCarousel:
+  autoPlay: true
+  interval: 5000
+  images:
+    - url: "/assets/abc-general/hero/staff.jpg"
+      alt: "Our dedicated medical staff at ABC General Hospital"
+      type: "staff"
+    - url: "/assets/abc-general/hero/facility.jpg"
+      alt: "Modern hospital facilities"
+      type: "facility"
+    - url: "/assets/abc-general/hero/equipment.jpg"
+      alt: "Advanced medical equipment and technology"
+      type: "equipment"
+    - url: "/assets/abc-general/hero/care.jpg"
+      alt: "Compassionate patient care"
+      type: "care"
+    - url: "/assets/abc-general/hero/surgery.jpg"
+      alt: "State-of-the-art operation theaters"
+      type: "facility"

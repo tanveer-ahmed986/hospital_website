@@ -1,0 +1,116 @@
+# Hospital Configuration Template
+# Copy this file and customize for each hospital deployment
+
+hospital:
+  id: "hospital-id"                    # Unique identifier (lowercase, no spaces)
+  name: "Hospital Name"               # Full hospital name
+  tagline: "Your Health, Our Priority" # Hospital tagline/slogan
+  logo: "/assets/hospital-id/logo.png" # Logo path
+  favicon: "/assets/hospital-id/favicon.ico" # Favicon path
+  domain: "yourhospital.com"          # Hospital domain
+
+branding:
+  colors:
+    primary: "#0066CC"    # Primary brand color (typically blue for medical)
+    secondary: "#00A859"  # Secondary color (typically green for health)
+    accent: "#FF6B35"     # Accent color for CTAs
+  fonts:
+    heading: "Montserrat" # Heading font family
+    body: "Open Sans"     # Body text font family
+
+contact:
+  phone: "+1-555-HOSPITAL"
+  emergency: "+1-555-EMERGENCY"
+  email: "info@yourhospital.com"
+  address:
+    street: "123 Medical Center Blvd"
+    city: "City Name"
+    state: "State"
+    zip: "12345"
+    country: "USA"
+
+features:
+  appointmentBooking: true   # Enable online appointment booking
+  patientPortal: false       # Enable patient portal (requires HMS)
+  onlinePayments: false      # Enable online payment gateway
+  telemedicine: false        # Enable telemedicine consultations
+  multiLanguage: false       # Enable multiple language support
+  blog: true                 # Enable blog/health articles
+  careers: true              # Enable careers page
+
+languages:
+  default: "en"              # Default language
+  supported: ["en"]          # Supported languages (e.g., ["en", "ur", "ar"])
+
+specialties:
+  # Enable specific specialties (from predefined list in database)
+  enabled:
+    - "ent"
+    - "cardiology"
+    - "pediatrics"
+    - "gynecology"
+    - "gastroenterology"
+    - "orthopedics"
+    - "neurology"
+    - "dermatology"
+    - "ophthalmology"
+    - "urology"
+
+serviceCategories:
+  laboratory:
+    enabled: true
+    collectionTiming: "Mon-Sat 7:00 AM - 11:00 AM"
+    reportDelivery: "24-48 hours"
+    homeCollection: true
+  pharmacy:
+    enabled: true
+    hours: "24/7"
+    homeDelivery: true
+  radiology:
+    enabled: true
+    services: ["x-ray", "ct-scan", "mri", "ultrasound"]
+  emergency:
+    enabled: true
+    availability: "24/7"
+  icu:
+    enabled: true
+    types: ["MICU", "CCU", "NICU"]
+
+integrations:
+  hms:
+    enabled: false           # Enable HMS integration
+    apiUrl: ""              # HMS API URL (if enabled)
+    # apiKey loaded from environment variable: HMS_API_KEY
+  sms:
+    provider: "twilio"       # SMS provider: twilio
+    from: "+1-555-0000"     # SMS sender number
+    # credentials from environment: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+  email:
+    provider: "sendgrid"     # Email provider: sendgrid
+    from: "noreply@yourhospital.com"
+    # API key from environment: SENDGRID_API_KEY
+  maps:
+    latitude: 40.7128         # Hospital location latitude
+    longitude: -74.0060       # Hospital location longitude
+  analytics:
+    googleAnalyticsId: ""    # Google Analytics ID (e.g., G-XXXXXXXXXX)
+  recaptcha:
+    # siteKey from environment: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+    # secretKey from environment: RECAPTCHA_SECRET_KEY
+
+heroCarousel:
+  autoPlay: true             # Auto-play carousel
+  interval: 5000             # Interval between slides (milliseconds)
+  images:
+    - url: "/assets/hospital-id/hero/staff.jpg"
+      alt: "Our dedicated medical staff"
+      type: "staff"
+    - url: "/assets/hospital-id/hero/facility.jpg"
+      alt: "Modern hospital facilities"
+      type: "facility"
+    - url: "/assets/hospital-id/hero/equipment.jpg"
+      alt: "Advanced medical equipment"
+      type: "equipment"
+    - url: "/assets/hospital-id/hero/care.jpg"
+      alt: "Compassionate patient care"
+      type: "care"

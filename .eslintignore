@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+
+# Prisma generated
+prisma/migrations/
+
+# Generated types
+*.d.ts
+next-env.d.ts
+
+# Config files
+*.config.js
+*.config.ts
+
+# Cache
+.cache/
+.eslintcache

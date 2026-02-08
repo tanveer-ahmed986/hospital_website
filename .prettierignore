@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+
+# Prisma generated
+prisma/migrations/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated types
+*.d.ts
+next-env.d.ts
+
+# Cache
+.cache/
+
+# Logs
+*.log
