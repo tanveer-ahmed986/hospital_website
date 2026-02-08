@@ -81,3 +81,4 @@ export const POST = asyncHandler(async (request: NextRequest) => {
 });
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';

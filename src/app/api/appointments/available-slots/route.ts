@@ -49,3 +49,4 @@ export const GET = asyncHandler(async (request: NextRequest) => {
 });
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
