@@ -49,8 +49,20 @@ function cleanupExpiredEntries(): void {
   }
 }
 
-// Run cleanup every 5 minutes
-setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+// Track last cleanup time for lazy cleanup
+let lastCleanup = 0;
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Perform lazy cleanup if enough time has passed
+ */
+function lazyCleanup(): void {
+  const now = Date.now();
+  if (now - lastCleanup > CLEANUP_INTERVAL) {
+    cleanupExpiredEntries();
+    lastCleanup = now;
+  }
+}
 
 /**
  * Rate limit middleware
@@ -77,6 +89,9 @@ export function rateLimit(config: RateLimitConfig) {
   const { maxRequests, windowMs, message = 'Too many requests. Please try again later.' } = config;
 
   return async (request: NextRequest): Promise<NextResponse | null> => {
+    // Perform lazy cleanup of expired entries
+    lazyCleanup();
+
     const identifier = getClientIdentifier(request);
     const key = `${request.nextUrl.pathname}:${identifier}`;
     const now = Date.now();
