@@ -9,6 +9,9 @@ import Link from 'next/link';
 import { getDoctorById } from '@/lib/doctors';
 import { AppointmentForm } from '@/components/appointments';
 
+// Force dynamic rendering - don't pre-generate at build time
+export const dynamic = 'force-dynamic';
+
 interface BookAppointmentPageProps {
   params: {
     doctorId: string;
