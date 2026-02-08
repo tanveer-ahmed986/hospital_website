@@ -33,7 +33,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const inputId = id || `input-${React.useId()}`;
+    const generatedId = React.useId();
+    const inputId = id || `input-${generatedId}`;
 
     const baseStyles =
       'rounded-lg border px-4 py-3 text-base transition-colors duration-200 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-opacity-20 disabled:bg-neutral-100 disabled:cursor-not-allowed';

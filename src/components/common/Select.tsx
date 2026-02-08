@@ -39,7 +39,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     },
     ref
   ) => {
-    const selectId = id || `select-${React.useId()}`;
+    const generatedId = React.useId();
+    const selectId = id || `select-${generatedId}`;
 
     const baseStyles =
       'appearance-none rounded-lg border px-4 py-3 pr-10 text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-20 disabled:bg-neutral-100 disabled:cursor-not-allowed bg-white cursor-pointer';

@@ -24,12 +24,12 @@ interface NavigationProps {
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ config: configProp }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [_isMobileMenuOpen, _setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
 
   // Use provided config or fallback to defaults
-  const config = configProp || {
+  const _config = configProp || {
     features: {
       blog: false,
       careers: false,
@@ -88,14 +88,15 @@ export const Navigation: React.FC<NavigationProps> = ({ config: configProp }) =>
     return pathname.startsWith(href);
   };
 
-  const toggleDropdown = (label: string) => {
-    setOpenDropdown(openDropdown === label ? null : label);
-  };
+  // Removed unused functions - will be needed for mobile menu implementation
+  // const toggleDropdown = (label: string) => {
+  //   setOpenDropdown(openDropdown === label ? null : label);
+  // };
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-    setOpenDropdown(null);
-  };
+  // const closeMobileMenu = () => {
+  //   _setIsMobileMenuOpen(false);
+  //   setOpenDropdown(null);
+  // };
 
   return (
     <nav className="hidden lg:block" role="navigation" aria-label="Main navigation">

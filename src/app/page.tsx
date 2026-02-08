@@ -7,7 +7,6 @@
 
 import React from 'react';
 import { Metadata } from 'next/head';
-import Link from 'next/link';
 import { HeroCarousel } from '@/components/hero/HeroCarousel';
 import { Testimonials } from '@/components/sections/Testimonials';
 import { Certifications } from '@/components/sections/Certifications';

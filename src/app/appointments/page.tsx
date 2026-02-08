@@ -5,7 +5,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Metadata } from 'next';
 
 export default function AppointmentsPage() {
   const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ export default function AppointmentsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert('Appointment request submitted! We will contact you shortly.');
-    console.log('Appointment data:', formData);
+    // Form data would be sent to backend API here
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

@@ -9,7 +9,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateContactData, createContactInquiry } from '@/lib/contact';
 import { asyncHandler, ValidationError } from '@/lib/utils/error-handler';
-import { successResponse } from '@/lib/utils/api-helpers';
 import { sendEmail } from '@/lib/email';
 import { rateLimit } from '@/lib/utils/rate-limit';
 
@@ -90,7 +89,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
     console.error('Failed to send admin notification:', emailError);
   }
 
-  return successResponse(
+  return NextResponse.json(
     {
       inquiry: {
         id: inquiry.id,
