@@ -7,10 +7,11 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
+import { createPortal } from 'react-dom';
 import type { HospitalConfig } from '@/lib/config';
 
 interface NavLink {
@@ -32,7 +33,12 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Use provided config or fallback to defaults
   const _config = configProp || {
@@ -181,8 +187,8 @@ export const Navigation: React.FC<NavigationProps> = ({
         </ul>
       </nav>
 
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
+      {/* Mobile Navigation Menu - Rendered via Portal */}
+      {isMounted && isMobileMenuOpen && createPortal(
         <>
           {/* Backdrop */}
           <div
@@ -193,7 +199,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
           {/* Mobile Menu Panel */}
           <nav
-            className="fixed top-[73px] left-0 right-0 bottom-0 bg-white z-[1300] lg:hidden overflow-y-auto"
+            className="fixed top-[80px] left-0 right-0 bottom-0 bg-white z-[1300] lg:hidden overflow-y-auto"
             role="navigation"
             aria-label="Mobile navigation"
           >
@@ -278,7 +284,8 @@ export const Navigation: React.FC<NavigationProps> = ({
               </div>
             </div>
           </nav>
-        </>
+        </>,
+        document.body
       )}
     </>
   );
