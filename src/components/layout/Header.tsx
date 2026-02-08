@@ -22,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ config: configProp }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Use provided config or fallback to defaults
   const config = configProp || {
@@ -72,6 +73,30 @@ export const Header: React.FC<HeaderProps> = ({ config: configProp }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
+  // Close mobile menu on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMobileMenuOpen]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <header
       className={clsx(
@@ -102,7 +127,11 @@ export const Header: React.FC<HeaderProps> = ({ config: configProp }) => {
           </Link>
 
           {/* Desktop Navigation - Center */}
-          <Navigation config={config} />
+          <Navigation
+            config={config}
+            isMobileMenuOpen={isMobileMenuOpen}
+            onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+          />
 
           {/* Book Appointment Button - Right */}
           {config.features.appointmentBooking && (
@@ -118,12 +147,20 @@ export const Header: React.FC<HeaderProps> = ({ config: configProp }) => {
           {/* Mobile Menu Button */}
           <button
             type="button"
-            className="lg:hidden p-2 text-neutral-700 hover:text-[var(--color-primary)] transition-colors"
-            aria-label="Toggle navigation menu"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-neutral-700 hover:text-orange-600 transition-colors"
+            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isMobileMenuOpen}
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            {isMobileMenuOpen ? (
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
