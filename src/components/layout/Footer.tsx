@@ -26,7 +26,14 @@ export const Footer: React.FC<FooterProps> = ({ config: configProp }) => {
     contact: {
       phone: '+92-300-1234567',
       email: 'info@hospital.com',
-      address: '123 Main Street, City, Country',
+      emergency: '+92-300-7654321',
+      address: {
+        street: '123 Main Street',
+        city: 'City',
+        state: 'State',
+        zip: '12345',
+        country: 'Country',
+      },
     },
     features: {
       appointmentBooking: true,

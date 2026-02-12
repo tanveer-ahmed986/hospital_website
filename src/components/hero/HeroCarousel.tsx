@@ -10,6 +10,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { CarouselControls } from './CarouselControls';
 
 export interface HeroImage {
@@ -174,12 +175,12 @@ export function HeroCarousel({
                     </p>
                   )}
                   {currentImage.link && (
-                    <a
+                    <Link
                       href={currentImage.link}
                       className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-md transition-colors duration-200 uppercase text-sm"
                     >
                       Read More
-                    </a>
+                    </Link>
                   )}
                 </motion.div>
               </div>

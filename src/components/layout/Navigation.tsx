@@ -202,6 +202,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             className="fixed top-[80px] left-0 right-0 bottom-0 bg-white z-[1300] lg:hidden overflow-y-auto"
             role="navigation"
             aria-label="Mobile navigation"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="py-4">
               {navLinks.map((link) => (
